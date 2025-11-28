@@ -1,0 +1,1308 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SHIFRA AI Assistant</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #0a0a1a 0%, #1a1a3e 50%, #0d0d2b 100%);
+            min-height: 100vh;
+            color: #fff;
+            overflow-x: hidden;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        header {
+            text-align: center;
+            padding: 25px 0;
+        }
+
+        .logo-container {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 15px;
+            margin-bottom: 10px;
+        }
+
+        .ai-logo {
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(135deg, #00f5ff, #7b2ffd, #ff00e5);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.8rem;
+            animation: logoPulse 3s ease-in-out infinite;
+            box-shadow: 0 0 30px rgba(123, 47, 253, 0.5);
+        }
+
+        @keyframes logoPulse {
+            0%, 100% { transform: scale(1); box-shadow: 0 0 30px rgba(123, 47, 253, 0.5); }
+            50% { transform: scale(1.05); box-shadow: 0 0 50px rgba(0, 245, 255, 0.7); }
+        }
+
+        h1 {
+            font-size: 2.8rem;
+            background: linear-gradient(90deg, #00f5ff, #7b2ffd, #ff00e5, #00f5ff);
+            background-size: 300% 300%;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            animation: gradientMove 4s ease infinite;
+        }
+
+        @keyframes gradientMove {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        .subtitle {
+            color: #8892b0;
+            font-size: 1.1rem;
+            margin-top: 8px;
+        }
+
+        .status-bar {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            margin-top: 15px;
+            flex-wrap: wrap;
+        }
+
+        .status-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.9rem;
+            color: #8892b0;
+        }
+
+        .status-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: #00f5ff;
+            animation: blink 2s ease-in-out infinite;
+        }
+
+        .status-dot.active { background: #00ff88; }
+
+        @keyframes blink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 25px;
+            margin-top: 25px;
+        }
+
+        @media (max-width: 900px) {
+            .main-content { grid-template-columns: 1fr; }
+            h1 { font-size: 2rem; }
+        }
+
+        .panel {
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: 24px;
+            padding: 25px;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            backdrop-filter: blur(20px);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .panel::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, rgba(0, 245, 255, 0.5), transparent);
+        }
+
+        .section-title {
+            font-size: 1.2rem;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: #fff;
+        }
+
+        .section-title i { color: #00f5ff; font-size: 1.1rem; }
+
+        .ai-orb-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 220px;
+            position: relative;
+        }
+
+        .orb-rings {
+            position: absolute;
+            width: 200px;
+            height: 200px;
+        }
+
+        .orb-ring {
+            position: absolute;
+            inset: 0;
+            border: 2px solid rgba(0, 245, 255, 0.2);
+            border-radius: 50%;
+            animation: ringRotate 8s linear infinite;
+        }
+
+        .orb-ring:nth-child(2) {
+            inset: -15px;
+            border-color: rgba(123, 47, 253, 0.2);
+            animation-duration: 12s;
+            animation-direction: reverse;
+        }
+
+        .orb-ring:nth-child(3) {
+            inset: -30px;
+            border-color: rgba(255, 0, 229, 0.15);
+            animation-duration: 16s;
+        }
+
+        @keyframes ringRotate {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        .ai-orb {
+            width: 140px;
+            height: 140px;
+            border-radius: 50%;
+            background: radial-gradient(circle at 30% 30%, #7b2ffd, #00f5ff 50%, #ff00e5);
+            position: relative;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            z-index: 2;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .ai-orb:hover { transform: scale(1.08); }
+
+        .ai-orb.listening {
+            animation: orbListening 0.8s ease-in-out infinite;
+        }
+
+        @keyframes orbListening {
+            0%, 100% { 
+                transform: scale(1);
+                box-shadow: 0 0 40px rgba(0, 245, 255, 0.6), 0 0 80px rgba(123, 47, 253, 0.4);
+            }
+            50% { 
+                transform: scale(1.1);
+                box-shadow: 0 0 60px rgba(0, 245, 255, 0.8), 0 0 120px rgba(123, 47, 253, 0.6);
+            }
+        }
+
+        .ai-orb i {
+            font-size: 3rem;
+            color: white;
+            text-shadow: 0 0 20px rgba(255, 255, 255, 0.5);
+            z-index: 3;
+        }
+
+        .ai-orb::before {
+            content: '';
+            position: absolute;
+            inset: -5px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, rgba(0, 245, 255, 0.4), transparent, rgba(255, 0, 229, 0.4));
+            animation: orbGlow 3s ease-in-out infinite;
+            z-index: -1;
+        }
+
+        @keyframes orbGlow {
+            0%, 100% { opacity: 0.5; transform: scale(1); }
+            50% { opacity: 1; transform: scale(1.1); }
+        }
+
+        .voice-status {
+            text-align: center;
+            margin: 20px 0 15px;
+        }
+
+        .status-text {
+            font-size: 1rem;
+            color: #8892b0;
+            transition: all 0.3s ease;
+        }
+
+        .status-text.active {
+            color: #00f5ff;
+            text-shadow: 0 0 10px rgba(0, 245, 255, 0.5);
+        }
+
+        .voice-wave {
+            display: flex;
+            justify-content: center;
+            gap: 4px;
+            height: 30px;
+            align-items: center;
+            margin-top: 10px;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        .voice-wave.active { opacity: 1; }
+
+        .wave-bar {
+            width: 4px;
+            height: 10px;
+            background: linear-gradient(180deg, #00f5ff, #7b2ffd);
+            border-radius: 2px;
+            animation: waveAnim 0.5s ease-in-out infinite;
+        }
+
+        .wave-bar:nth-child(1) { animation-delay: 0s; }
+        .wave-bar:nth-child(2) { animation-delay: 0.1s; }
+        .wave-bar:nth-child(3) { animation-delay: 0.2s; }
+        .wave-bar:nth-child(4) { animation-delay: 0.3s; }
+        .wave-bar:nth-child(5) { animation-delay: 0.4s; }
+
+        @keyframes waveAnim {
+            0%, 100% { height: 10px; }
+            50% { height: 25px; }
+        }
+
+        .info-box {
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 12px;
+            padding: 15px;
+            margin-top: 15px;
+            border: 1px solid rgba(0, 245, 255, 0.15);
+        }
+
+        .info-label {
+            font-size: 0.8rem;
+            color: #7b2ffd;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .info-text {
+            color: #e0e0e0;
+            font-size: 0.95rem;
+            line-height: 1.5;
+            min-height: 22px;
+        }
+
+        .response-box {
+            background: linear-gradient(135deg, rgba(0, 245, 255, 0.08), rgba(123, 47, 253, 0.08));
+            border: 1px solid rgba(0, 245, 255, 0.2);
+        }
+
+        .response-box .info-label { color: #00f5ff; }
+
+        .quick-commands {
+            margin-top: 20px;
+        }
+
+        .quick-commands h3 {
+            font-size: 0.85rem;
+            color: #8892b0;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .command-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 8px;
+        }
+
+        .command-btn {
+            background: rgba(123, 47, 253, 0.15);
+            border: 1px solid rgba(123, 47, 253, 0.3);
+            padding: 10px 14px;
+            border-radius: 10px;
+            font-size: 0.85rem;
+            color: #fff;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .command-btn:hover {
+            background: rgba(123, 47, 253, 0.3);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(123, 47, 253, 0.3);
+        }
+
+        .command-btn i { font-size: 1rem; }
+
+        .chat-messages {
+            height: 320px;
+            overflow-y: auto;
+            padding: 15px;
+            background: rgba(0, 0, 0, 0.25);
+            border-radius: 16px;
+            margin-bottom: 15px;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .chat-messages::-webkit-scrollbar { width: 6px; }
+        .chat-messages::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 3px;
+        }
+        .chat-messages::-webkit-scrollbar-thumb {
+            background: linear-gradient(180deg, #7b2ffd, #00f5ff);
+            border-radius: 3px;
+        }
+
+        .message {
+            margin-bottom: 15px;
+            display: flex;
+            flex-direction: column;
+            animation: messageIn 0.3s ease;
+        }
+
+        @keyframes messageIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .message.user { align-items: flex-end; }
+        .message.ai { align-items: flex-start; }
+
+        .message-content {
+            max-width: 85%;
+            padding: 12px 16px;
+            border-radius: 16px;
+            font-size: 0.9rem;
+            line-height: 1.5;
+        }
+
+        .message.user .message-content {
+            background: linear-gradient(135deg, #7b2ffd, #5a1fd6);
+            border-bottom-right-radius: 4px;
+        }
+
+        .message.ai .message-content {
+            background: rgba(0, 245, 255, 0.1);
+            border: 1px solid rgba(0, 245, 255, 0.2);
+            border-bottom-left-radius: 4px;
+        }
+
+        .message-time {
+            font-size: 0.7rem;
+            color: #666;
+            margin-top: 4px;
+            padding: 0 5px;
+        }
+
+        .chat-input-container {
+            display: flex;
+            gap: 10px;
+            background: rgba(0, 0, 0, 0.2);
+            padding: 10px;
+            border-radius: 16px;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .chat-input {
+            flex: 1;
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            padding: 12px 18px;
+            color: #fff;
+            font-size: 0.95rem;
+            outline: none;
+            transition: all 0.3s ease;
+        }
+
+        .chat-input:focus {
+            border-color: rgba(0, 245, 255, 0.5);
+            background: rgba(255, 255, 255, 0.1);
+            box-shadow: 0 0 20px rgba(0, 245, 255, 0.15);
+        }
+
+        .chat-input::placeholder { color: #666; }
+
+        .btn-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 12px;
+            border: none;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.1rem;
+            transition: all 0.3s ease;
+            color: white;
+        }
+
+        .btn-send { background: linear-gradient(135deg, #7b2ffd, #5a1fd6); }
+        .btn-voice { background: linear-gradient(135deg, #00f5ff, #0099aa); }
+
+        .btn-icon:hover {
+            transform: scale(1.08);
+            box-shadow: 0 5px 25px rgba(123, 47, 253, 0.4);
+        }
+
+        .suggestions { margin-top: 15px; }
+
+        .suggestions-title {
+            font-size: 0.8rem;
+            color: #666;
+            margin-bottom: 10px;
+        }
+
+        .suggestion-chips {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .chip {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 8px 14px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            color: #aaa;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .chip:hover {
+            background: rgba(0, 245, 255, 0.15);
+            border-color: rgba(0, 245, 255, 0.3);
+            color: #fff;
+        }
+
+        .floating-particles {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            overflow: hidden;
+            z-index: -1;
+        }
+
+        .particle {
+            position: absolute;
+            border-radius: 50%;
+            animation: floatUp linear infinite;
+            opacity: 0;
+        }
+
+        @keyframes floatUp {
+            0% { transform: translateY(100vh) scale(0); opacity: 0; }
+            10% { opacity: 0.6; }
+            90% { opacity: 0.6; }
+            100% { transform: translateY(-100vh) scale(1); opacity: 0; }
+        }
+
+        .websites-panel {
+            margin-top: 20px;
+            padding: 15px;
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 12px;
+        }
+
+        .websites-title {
+            font-size: 0.85rem;
+            color: #8892b0;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .website-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 10px;
+        }
+
+        @media (max-width: 900px) {
+            .website-grid { grid-template-columns: repeat(3, 1fr); }
+        }
+
+        .website-btn {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            padding: 12px 8px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .website-btn:hover {
+            background: rgba(0, 245, 255, 0.15);
+            border-color: rgba(0, 245, 255, 0.3);
+            transform: translateY(-3px);
+        }
+
+        .website-btn i {
+            font-size: 1.4rem;
+            margin-bottom: 5px;
+            display: block;
+        }
+
+        .website-btn span {
+            font-size: 0.75rem;
+            color: #aaa;
+        }
+
+        .website-btn:hover span { color: #fff; }
+
+        .footer {
+            text-align: center;
+            margin-top: 30px;
+            padding: 20px;
+            color: #666;
+            font-size: 0.85rem;
+        }
+
+        .footer .brand {
+            color: #7b2ffd;
+            font-weight: 600;
+        }
+
+        .developer-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: linear-gradient(135deg, rgba(123, 47, 253, 0.2), rgba(0, 245, 255, 0.2));
+            padding: 8px 16px;
+            border-radius: 20px;
+            margin-top: 10px;
+            border: 1px solid rgba(123, 47, 253, 0.3);
+        }
+
+        .developer-badge i { color: #ff00e5; }
+
+        .yt-red { color: #ff0000; }
+        .ig-gradient { color: #e1306c; }
+        .wa-green { color: #25d366; }
+        .tg-blue { color: #0088cc; }
+        .fb-blue { color: #1877f2; }
+        .tw-blue { color: #1da1f2; }
+        .google-multi { color: #4285f4; }
+        .gh-white { color: #fff; }
+    </style>
+</head>
+<body>
+    <div class="floating-particles" id="particles"></div>
+    
+    <div class="container">
+        <header>
+            <div class="logo-container">
+                <div class="ai-logo"><i class="fas fa-robot"></i></div>
+                <h1>SHIFRA AI</h1>
+            </div>
+            <p class="subtitle">Your Intelligent Voice-Powered Assistant</p>
+            <div class="status-bar">
+                <div class="status-item">
+                    <div class="status-dot active"></div>
+                    <span>System Online</span>
+                </div>
+                <div class="status-item">
+                    <div class="status-dot" id="voiceStatusDot"></div>
+                    <span id="voiceStatusText">Voice Ready</span>
+                </div>
+                <div class="status-item">
+                    <div class="status-dot active"></div>
+                    <span id="timeDisplay">--:--</span>
+                </div>
+            </div>
+        </header>
+
+        <div class="main-content">
+            <!-- Voice Control Panel -->
+            <div class="panel">
+                <h2 class="section-title">
+                    <i class="fas fa-microphone-alt"></i>
+                    Voice Control
+                </h2>
+                
+                <div class="ai-orb-container">
+                    <div class="orb-rings">
+                        <div class="orb-ring"></div>
+                        <div class="orb-ring"></div>
+                        <div class="orb-ring"></div>
+                    </div>
+                    <div class="ai-orb" id="voiceOrb" onclick="toggleVoice()">
+                        <i class="fas fa-microphone"></i>
+                    </div>
+                </div>
+                
+                <div class="voice-status">
+                    <p class="status-text" id="statusText">Tap the mic to start listening</p>
+                    <div class="voice-wave" id="voiceWave">
+                        <div class="wave-bar"></div>
+                        <div class="wave-bar"></div>
+                        <div class="wave-bar"></div>
+                        <div class="wave-bar"></div>
+                        <div class="wave-bar"></div>
+                    </div>
+                </div>
+                
+                <div class="info-box">
+                    <p class="info-label"><i class="fas fa-comment-dots"></i> You Said</p>
+                    <p class="info-text" id="transcriptText">Waiting for voice input...</p>
+                </div>
+
+                <div class="info-box response-box">
+                    <p class="info-label"><i class="fas fa-robot"></i> AI Response</p>
+                    <p class="info-text" id="responseText">Hello! I'm Shifra AI, ready to assist you.</p>
+                </div>
+
+                <div class="quick-commands">
+                    <h3><i class="fas fa-bolt"></i> Quick Commands</h3>
+                    <div class="command-grid">
+                        <button class="command-btn" onclick="executeCommand('open youtube')">
+                            <i class="fab fa-youtube yt-red"></i> YouTube
+                        </button>
+                        <button class="command-btn" onclick="executeCommand('open instagram')">
+                            <i class="fab fa-instagram ig-gradient"></i> Instagram
+                        </button>
+                        <button class="command-btn" onclick="executeCommand('open whatsapp')">
+                            <i class="fab fa-whatsapp wa-green"></i> WhatsApp
+                        </button>
+                        <button class="command-btn" onclick="executeCommand('open telegram')">
+                            <i class="fab fa-telegram tg-blue"></i> Telegram
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Chat Panel -->
+            <div class="panel">
+                <h2 class="section-title">
+                    <i class="fas fa-comments"></i>
+                    Chat with Shifra
+                </h2>
+                
+                <div class="chat-messages" id="chatMessages">
+                    <div class="message ai">
+                        <div class="message-content">
+                            👋 Hello! I'm <strong>SHIFRA AI</strong>, your intelligent assistant. I can open websites, search Google, tell you the time, and more. Try saying <em>"Open YouTube"</em> or ask me anything!
+                        </div>
+                        <span class="message-time">Just now</span>
+                    </div>
+                </div>
+
+                <div class="chat-input-container">
+                    <input type="text" class="chat-input" id="chatInput" placeholder="Type your message or command..." onkeypress="handleKeyPress(event)">
+                    <button class="btn-icon btn-voice" onclick="toggleVoice()" title="Voice Input">
+                        <i class="fas fa-microphone"></i>
+                    </button>
+                    <button class="btn-icon btn-send" onclick="sendMessage()" title="Send">
+                        <i class="fas fa-paper-plane"></i>
+                    </button>
+                </div>
+
+                <div class="suggestions">
+                    <p class="suggestions-title">Try asking:</p>
+                    <div class="suggestion-chips">
+                        <span class="chip" onclick="executeCommand('what time is it')">What time is it?</span>
+                        <span class="chip" onclick="executeCommand('hello')">Say hello</span>
+                        <span class="chip" onclick="executeCommand('open google')">Open Google</span>
+                    </div>
+                </div>
+
+                <div class="websites-panel">
+                    <h3 class="websites-title"><i class="fas fa-globe"></i> Quick Launch</h3>
+                    <div class="website-grid">
+                        <div class="website-btn" onclick="openWebsite('youtube')">
+                            <i class="fab fa-youtube yt-red"></i>
+                            <span>YouTube</span>
+                        </div>
+                        <div class="website-btn" onclick="openWebsite('instagram')">
+                            <i class="fab fa-instagram ig-gradient"></i>
+                            <span>Instagram</span>
+                        </div>
+                        <div class="website-btn" onclick="openWebsite('whatsapp')">
+                            <i class="fab fa-whatsapp wa-green"></i>
+                            <span>WhatsApp</span>
+                        </div>
+                        <div class="website-btn" onclick="openWebsite('telegram')">
+                            <i class="fab fa-telegram tg-blue"></i>
+                            <span>Telegram</span>
+                        </div>
+                        <div class="website-btn" onclick="openWebsite('facebook')">
+                            <i class="fab fa-facebook fb-blue"></i>
+                            <span>Facebook</span>
+                        </div>
+                        <div class="website-btn" onclick="openWebsite('twitter')">
+                            <i class="fab fa-twitter tw-blue"></i>
+                            <span>Twitter</span>
+                        </div>
+                        <div class="website-btn" onclick="openWebsite('google')">
+                            <i class="fab fa-google google-multi"></i>
+                            <span>Google</span>
+                        </div>
+                        <div class="website-btn" onclick="openWebsite('github')">
+                            <i class="fab fa-github gh-white"></i>
+                            <span>GitHub</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="footer">
+            <p>Powered by <span class="brand">SHIFRA AI</span> • Voice Recognition Enabled</p>
+            <div class="developer-badge">
+                <i class="fas fa-code"></i>
+                <span>Created by <strong>Naman Jain & Mehul Sahu</strong></span>
+            </div>
+        </div>
+    </div>
+    <script>
+    // Initialize particles
+const particlesContainer = document.getElementById('particles');
+for (let i = 0; i < 40; i++) {
+    const particle = document.createElement('div');
+    particle.className = 'particle';
+    particle.style.left = Math.random() * 100 + '%';
+    particle.style.width = (Math.random() * 6 + 2) + 'px';
+    particle.style.height = particle.style.width;
+    particle.style.background = ['#00f5ff', '#7b2ffd', '#ff00e5'][Math.floor(Math.random() * 3)];
+    particle.style.animationDuration = (Math.random() * 15 + 10) + 's';
+    particle.style.animationDelay = Math.random() * 10 + 's';
+    particlesContainer.appendChild(particle);
+}
+
+// Update time
+function updateTime() {
+    const now = new Date();
+    document.getElementById('timeDisplay').textContent = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+}
+updateTime();
+setInterval(updateTime, 1000);
+
+
+
+
+let recognition = null;
+let isListening = false;
+const synthesis = window.speechSynthesis;
+
+function isSpeechSupported() {
+    return ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window);
+}
+
+function showMobileError() {
+    alert("❌ Your mobile browser does not support speech recognition.\n\nPlease use:\n✅ Chrome Desktop\n✅ Microsoft Edge Desktop\n\nMobile Chrome/Android browsers do NOT support Web Speech API.");
+}
+
+
+if (isSpeechSupported()) {
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    recognition = new SpeechRecognition();
+    recognition.continuous = false;
+    recognition.interimResults = true;
+    recognition.lang = 'en-US';
+
+    recognition.onstart = () => {
+        isListening = true;
+        document.getElementById('voiceOrb').classList.add('listening');
+        document.getElementById('statusText').textContent = 'Listening...';
+        document.getElementById('statusText').classList.add('active');
+        document.getElementById('voiceWave').classList.add('active');
+        document.getElementById('voiceStatusDot').classList.add('active');
+        document.getElementById('voiceStatusText').textContent = 'Listening';
+    };
+
+    recognition.onresult = (event) => {
+        let finalTranscript = '';
+        let interimTranscript = '';
+        for (let i = event.resultIndex; i < event.results.length; i++) {
+            if (event.results[i].isFinal) {
+                finalTranscript += event.results[i][0].transcript;
+            } else {
+                interimTranscript += event.results[i][0].transcript;
+            }
+        }
+        document.getElementById('transcriptText').textContent = finalTranscript || interimTranscript || 'Listening...';
+        if (finalTranscript) {
+            processCommand(finalTranscript);
+        }
+    };
+
+    recognition.onend = () => {
+        isListening = false;
+        document.getElementById('voiceOrb').classList.remove('listening');
+        document.getElementById('statusText').textContent = 'Tap the orb to start listening';
+        document.getElementById('statusText').classList.remove('active');
+        document.getElementById('voiceWave').classList.remove('active');
+        document.getElementById('voiceStatusDot').classList.remove('active');
+        document.getElementById('voiceStatusText').textContent = 'Voice Ready';
+    };
+
+    recognition.onerror = (event) => {
+        console.error("Speech Error:", event.error);
+
+        if (event.error === "not-allowed" || event.error === "service-not-allowed") {
+            alert("❌ Microphone access blocked.\nPlease allow mic permission from browser settings.");
+        }
+
+        if (event.error === "aborted" || event.error === "no-speech") {
+            // ignore safe errors
+        } else {
+            alert("Speech Recognition Error: " + event.error);
+        }
+
+        isListening = false;
+    };
+}
+
+
+function toggleVoice() {
+    if (!isSpeechSupported()) {
+        showMobileError();
+        return;
+    }
+
+    if (!recognition) return;
+
+    if (isListening) recognition.stop();
+    else recognition.start();
+}
+
+
+function speak(text) {
+    if (synthesis.speaking) synthesis.cancel();
+    const utterance = new SpeechSynthesisUtterance(text);
+    utterance.rate = 1;
+    utterance.pitch = 1;
+    utterance.volume = 1;
+    utterance.lang = "hi-GB";
+    synthesis.speak(utterance);
+}
+
+
+function handleInstagramMessage(command) {
+    const cmd = command.toLowerCase();
+
+    const usernameMatch =
+        cmd.match(/instagram\s+par\s+([a-zA-Z0-9._]+)/) ||
+        cmd.match(/instagram\s+pe\s+([a-zA-Z0-9._]+)/) ||
+        cmd.match(/insta\s+par\s+([a-zA-Z0-9._]+)/);
+
+    const msgMatch =
+        cmd.match(/message\s+bhejo\s+(.+)$/) ||
+        cmd.match(/message\s+karo\s+(.+)$/) ||
+        cmd.match(/send\s+(.+)$/);
+
+    if (!usernameMatch) return false;
+
+    const username = usernameMatch[1];
+    const message = msgMatch ? msgMatch[1] : "";
+
+    // DM thread block hota hai — use profile link
+    const profileURL = `https://www.instagram.com/${username}/`;
+
+    let response = `Instagram पर ${username} की प्रोफ़ाइल खोल रहा हूँ।`;
+
+    if (message) {
+        response += `\n\n📩 Message suggest: "${message}"`;
+    }
+
+    addMessage(command, "user");
+    addMessage(response, "ai");
+    document.getElementById("responseText").textContent = response;
+    speak(response);
+
+    setTimeout(() => {
+        window.open(profileURL, "_blank");
+    }, 1000);
+
+    return true;
+}
+
+
+// WEBSITE LIST
+const websites = {
+    'youtube': 'https://www.youtube.com',
+    'instagram': 'https://www.instagram.com',
+    'whatsapp': 'whatsapp://',
+    'whatsupp': 'https://web.whatsapp.com',
+    'whats up': 'https://web.whatsapp.com',
+    'what sup': 'https://web.whatsapp.com',
+    'telegram': 'https://web.telegram.org',
+    'facebook': 'https://www.facebook.com',
+    'twitter': 'https://www.twitter.com',
+    'x': 'https://www.x.com',
+    'google': 'https://www.google.com',
+    'gmail': 'https://mail.google.com',
+    'linkedin': 'https://www.linkedin.com',
+    'reddit': 'https://www.reddit.com',
+    'amazon': 'https://www.amazon.com',
+    'netflix': 'https://www.netflix.com',
+    'spotify': 'https://www.spotify.com',
+    'github': 'https://www.github.com',
+    'stackoverflow': 'https://stackoverflow.com',
+    'pinterest': 'https://www.pinterest.com',
+    'snapchat': 'https://www.snapchat.com',
+    'tiktok': 'https://www.tiktok.com',
+    'discord': 'https://discord.com',
+    'twitch': 'https://www.twitch.tv',
+    'wikipedia': 'https://www.wikipedia.org',
+    'flipkart': 'https://www.flipkart.com',
+    'maps': 'https://maps.google.com',
+    'drive': 'https://drive.google.com',
+    'canva': 'https://www.canva.com',
+    'figma': 'https://www.figma.com',
+    'notion': 'https://www.notion.so',
+    'zoom': 'https://zoom.us',
+    'meet': 'https://meet.google.com',
+    'chatgpt': 'https://chat.openai.com',
+    'chat gpt': 'https://chat.openai.com',
+    'claude': 'https://claude.ai'
+};
+
+
+
+// YAHAN APNE CONTACTS ADD KARO - Format: 'naam': '+91xxxxxxxxxx'
+const contacts = {
+    'rahul': '+919876543210',
+    'priya': '+919876543211',
+    'mom': '+919876543212',
+    'mummy': '+919876543212',
+    'dad': '+919876543213',
+    'papa': '+919876543213',
+    'father': '+919876543213',
+    'bhai': '+919876543214',
+    'brother': '+919876543214',
+    'didi': '+919876543215',
+    'sister': '+919876543215',
+    'boss': '+919876543216',
+    'friend': '+919876543217',
+    'dost': '+919876543217',
+    
+    
+};
+
+
+function openWebsite(site) {
+    const url = websites[site.toLowerCase()];
+    if (url) {
+        window.open(url, '_blank');
+        const response = `Opening ${site} for you!`;
+        addMessage(`Open ${site}`, 'user');
+        addMessage(response, 'ai');
+        document.getElementById('responseText').textContent = response;
+        speak(response);
+    }
+}
+
+
+/* 
+   COMMAND PROCESSOR
+ */
+
+function processCommand(command) {
+    const cmd = command.toLowerCase().trim();
+    let response = '';
+
+    // WhatsApp message sending
+    if (cmd.includes('whatsapp') && (cmd.includes('message') || cmd.includes('send') || cmd.includes('bhejo') || cmd.includes('karo'))) {
+        handleWhatsAppMessage(command);
+        return;
+    }
+    // Instagram message commands
+if (handleInstagramMessage(command)) return;
+
+
+    // Creator questions
+    if (cmd.includes('who') && (cmd.includes('created') || cmd.includes('create') || cmd.includes('made') || cmd.includes('developed') || cmd.includes('built') || cmd.includes('developer'))) {
+        response = "I was created by Naman Jain and Mehul Sahu. They built me to help you navigate the web using voice commands.";
+        addMessage(command, 'user');
+        addMessage(response, 'ai');
+        document.getElementById('responseText').textContent = response;
+        speak(response);
+        return;
+    }
+
+    // Greetings
+    if (cmd.match(/^(hello|hi|hey|good morning|good afternoon|good evening)/)) {
+        const greetings = [
+            "Hello! Great to see you! How can I assist you today?",
+            "Hey there! I'm Shifra AI, ready to help. What would you like to do?",
+            "Hi! Nice to meet you! Try asking me to open a website or search for something."
+        ];
+        response = greetings[Math.floor(Math.random() * greetings.length)];
+        addMessage(command, 'user');
+        addMessage(response, 'ai');
+        document.getElementById('responseText').textContent = response;
+        speak(response);
+        return;
+    }
+
+    // How are you
+    if (cmd.includes('how are you') || cmd.includes('how r u')) {
+        response = "I'm doing fantastic, thank you! As an AI, I'm always ready to help you. What can I do for you?";
+        addMessage(command, 'user');
+        addMessage(response, 'ai');
+        document.getElementById('responseText').textContent = response;
+        speak(response);
+        return;
+    }
+
+    // What's your name
+    if (cmd.includes('your name') || cmd.includes('who are you') || cmd.includes('hu r u')) {
+        response = "I'm Shifra AI, your intelligent voice-powered assistant! I can open websites, search the web, tell you the time, and much more.";
+        addMessage(command, 'user');
+        addMessage(response, 'ai');
+        document.getElementById('responseText').textContent = response;
+        speak(response);
+        return;
+    }
+
+    // Time
+    if (cmd.includes('time') || cmd.includes('what time')) {
+        const now = new Date();
+        const timeString = now.toLocaleTimeString([], {hour: '2-digit', minute: '2-digit', hour12: true});
+        response = `The current time is ${timeString}`;
+        addMessage(command, 'user');
+        addMessage(response, 'ai');
+        document.getElementById('responseText').textContent = response;
+        speak(response);
+        return;
+    }
+
+    // Date
+    if (cmd.includes('date') || cmd.includes('what day') || cmd.includes('today')) {
+        const now = new Date();
+        const dateString = now.toLocaleDateString('en-US', {weekday: 'long', year: 'numeric', month: 'long', day: 'numeric'});
+        response = `Today is ${dateString}`;
+        addMessage(command, 'user');
+        addMessage(response, 'ai');
+        document.getElementById('responseText').textContent = response;
+        speak(response);
+        return;
+    }
+
+    // Websites
+    if (cmd.includes('open')) {
+        for (const [site, url] of Object.entries(websites)) {
+            if (cmd.includes(site)) {
+                response = `Opening ${site} For You`;
+                addMessage(command, 'user');
+                addMessage(response, 'ai');
+                speak(response);
+                setTimeout(() => window.open(url, '_blank'), 700);
+                return;
+            }
+        }
+    }
+
+    // default → Google
+    response = `Searching Google for "${command}"`;
+    addMessage(command, 'user');
+    addMessage(response, 'ai');
+    speak(response);
+
+    setTimeout(() => {
+        window.open(`https://www.google.com/search?q=${encodeURIComponent(command)}`, '_blank');
+    }, 700);
+}
+
+
+/* 
+   WHATSAPP MESSAGE HANDLER
+    */
+
+function handleWhatsAppMessage(command) {
+    const cmd = command.toLowerCase();
+    
+    // Extract phone number patterns
+    const phoneMatch = cmd.match(/(\+?\d[\d\s-]{8,15}\d)/);
+    
+    // Extract name patterns (after "ko" or "to")
+    const nameMatch = cmd.match(/(?:ko|to)\s+([a-zA-Z\s]+?)(?:\s+(?:message|send|bhejo|yeh|ye|this|bolna|bolo|likhna))/i);
+    
+    // Extract message content (after message/send/bhejo keywords)
+    const messagePatterns = [
+        /(?:message|send|bhejo|karo|bolo|bolna|likhna)\s+(.+?)$/i,
+        /(?:yeh|ye|this)\s+(.+?)$/i,
+        /["'](.+?)["']/
+    ];
+    
+    let messageText = '';
+    for (const pattern of messagePatterns) {
+        const match = cmd.match(pattern);
+        if (match) {
+            messageText = match[1].trim();
+            break;
+        }
+    }
+    
+    let contactIdentifier = '';
+    if (phoneMatch) {
+        contactIdentifier = phoneMatch[1].replace(/[\s-]/g, '');
+    } else if (nameMatch) {
+        contactIdentifier = nameMatch[1].trim();
+    }
+    
+    if (!contactIdentifier && !messageText) {
+        const response = "Please specify contact name or number and message. For example: 'WhatsApp Rahul ko message bhejo Hello kaise ho'";
+        addMessage(command, 'user');
+        addMessage(response, 'ai');
+        document.getElementById('responseText').textContent = response;
+        speak(response);
+        return;
+    }
+    
+    // If phone number detected
+    if (phoneMatch) {
+        const phoneNumber = contactIdentifier;
+        if (messageText) {
+            sendWhatsAppMessage(phoneNumber, messageText, command);
+        } else {
+            const response = `Phone number ${phoneNumber} detected. What message should I send?`;
+            addMessage(command, 'user');
+            addMessage(response, 'ai');
+            document.getElementById('responseText').textContent = response;
+            speak(response);
+        }
+        return;
+    }
+    
+    // If name detected but no phone
+    if (contactIdentifier && messageText) {
+        // Check if name exists in contacts
+        const contactName = contactIdentifier.toLowerCase();
+        const phoneNumber = contacts[contactName];
+        
+        if (phoneNumber) {
+            // Contact found - send message directly
+            sendWhatsAppMessage(phoneNumber, messageText, command, contactIdentifier);
+        } else {
+            // Contact not found - ask to add or open WhatsApp
+            const response = `"${contactIdentifier}" contact list mein nahi hai. Opening WhatsApp - aapko manually select karna padega. Ya phir phone number use karein.`;
+            addMessage(command, 'user');
+            addMessage(response, 'ai');
+            document.getElementById('responseText').textContent = response;
+            speak(response);
+            
+            setTimeout(() => {
+                const encodedMessage = encodeURIComponent(messageText);
+                window.open(`https://web.whatsapp.com/send?text=${encodedMessage}`, '_blank');
+            }, 1500);
+        }
+        return;
+    }
+    
+    // Fallback
+    const response = "I need more details. Try: 'WhatsApp +919876543210 ko message send karo Hello'";
+    addMessage(command, 'user');
+    addMessage(response, 'ai');
+    document.getElementById('responseText').textContent = response;
+    speak(response);
+}
+
+function sendWhatsAppMessage(phoneNumber, message, originalCommand, contactName = null) {
+    // Remove + and spaces from phone number
+    const cleanNumber = phoneNumber.replace(/[+\s-]/g, '');
+    const encodedMessage = encodeURIComponent(message);
+    
+    // WhatsApp Desktop App Protocol (agar installed hai toh yeh khulega)
+    const whatsappDesktopURL = `whatsapp://send?phone=${cleanNumber}&text=${encodedMessage}`;
+    
+    // Backup: WhatsApp Web (agar desktop app nahi hai)
+    const whatsappWebURL = `https://web.whatsapp.com/send?phone=${cleanNumber}&text=${encodedMessage}`;
+    
+    const displayName = contactName ? contactName : phoneNumber;
+    const response = `WhatsApp kholke message bhej raha hoon ${displayName} ko`;
+    addMessage(originalCommand, 'user');
+    addMessage(response, 'ai');
+    document.getElementById('responseText').textContent = response;
+    speak(response);
+    
+    setTimeout(() => {
+        // Pehle Desktop App try karo
+        window.location.href = whatsappDesktopURL;
+        
+        // Agar 2 second mein app nahi khula, toh Web version kholo
+        setTimeout(() => {
+            if (document.hasFocus()) {
+                window.open(whatsappWebURL, '_blank');
+            }
+        }, 2000);
+    }, 1000);
+}
+
+
+function addMessage(text, type) {
+    const chatMessages = document.getElementById('chatMessages');
+    const div = document.createElement('div');
+    div.className = `message ${type}`;
+    const now = new Date();
+    div.innerHTML = `
+        <div class="message-content">${text}</div>
+        <span class="message-time">${now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit'})}</span>
+    `;
+    chatMessages.appendChild(div);
+    chatMessages.scrollTop = chatMessages.scrollHeight;
+}
+
+
+function executeCommand(cmd) {
+    document.getElementById('transcriptText').textContent = cmd;
+    processCommand(cmd);
+}
+
+function sendMessage() {
+    const input = document.getElementById('chatInput');
+    const msg = input.value.trim();
+    if (!msg) return;
+    document.getElementById('transcriptText').textContent = msg;
+    processCommand(msg);
+    input.value = "";
+}
+
+function handleKeyPress(e) {
+    if (e.key === 'Enter') sendMessage();
+}
+</script>
+</body>
+</html>
